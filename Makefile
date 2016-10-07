@@ -14,7 +14,7 @@ endif
 ifeq ($(uname_S),Linux)
 	CC = g++
 	CUDA_LIB_PATH = ${CUDA_INSTALL_PATH}/lib64
-	LFLAGS_CUDA = -L${CUDA_LIB_PATH} -lm -lstdc++ -lcudart -rt
+	LFLAGS_CUDA = -L${CUDA_LIB_PATH} -lm -lstdc++ -lcudart
 endif
 OPTFLAG = -O2
 NVCC = ${CUDA_INSTALL_PATH}/bin/nvcc
