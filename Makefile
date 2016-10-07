@@ -11,6 +11,11 @@ ifeq ($(uname_S),Darwin)
 	CUDA_LIB_PATH = ${CUDA_INSTALL_PATH}/lib
 	LFLAGS_CUDA = -L${CUDA_LIB_PATH} -lm -lstdc++ -lcudart
 endif
+ifeq ($(uname_S),Linux)
+	CC = g++
+	CUDA_LIB_PATH = ${CUDA_INSTALL_PATH}/lib64
+	LFLAGS_CUDA = -L${CUDA_LIB_PATH} -lm -lstdc++ -lcudart -rt
+endif
 OPTFLAG = -O2
 NVCC = ${CUDA_INSTALL_PATH}/bin/nvcc
 FLAGS_CUDA = ${OPTFLAG} -I${CUDA_INC_PATH} -Wall
