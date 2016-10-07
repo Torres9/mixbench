@@ -1,22 +1,26 @@
+uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
+
 CUDA_INSTALL_PATH = /usr/local/cuda
-#OCL_INSTALL_PATH = /opt/AMDAPPSDK
-OCL_INSTALL_PATH = ${CUDA_INSTALL_PATH}
+# OCL_INSTALL_PATH = /opt/AMDAPPSDK
+# OCL_INSTALL_PATH = ${CUDA_INSTALL_PATH}
 CUDA_INC_PATH = ${CUDA_INSTALL_PATH}/include
-CUDA_LIB_PATH = ${CUDA_INSTALL_PATH}/lib64
-OCL_INC_PATH = ${OCL_INSTALL_PATH}/include
-OCL_LIB_PATH = ${OCL_INSTALL_PATH}/lib/x86_64
-CC = g++
+# OCL_INC_PATH = ${OCL_INSTALL_PATH}/include
+# OCL_LIB_PATH = ${OCL_INSTALL_PATH}/lib/x86_64
+ifeq ($(uname_S),Darwin)
+	CC = clang
+	CUDA_LIB_PATH = ${CUDA_INSTALL_PATH}/lib
+	LFLAGS_CUDA = -L${CUDA_LIB_PATH} -lm -lstdc++ -lcudart
+endif
 OPTFLAG = -O2
 NVCC = ${CUDA_INSTALL_PATH}/bin/nvcc
 FLAGS_CUDA = ${OPTFLAG} -I${CUDA_INC_PATH} -Wall
-FLAGS_OCL = ${OPTFLAG} -I${OCL_INC_PATH} -Wall
+# FLAGS_OCL = ${OPTFLAG} -I${OCL_INC_PATH} -Wall
 NVFLAGS = -O2 -I${CUDA_INC_PATH} --compiler-options -fno-strict-aliasing --ptxas-options=-v -Xptxas -dlcm=cg
 BITS = $(shell getconf LONG_BIT)
-LFLAGS_CUDA = -L${CUDA_LIB_PATH} -lm -lstdc++ -lcudart -lrt
-LFLAGS_OCL = -L${OCL_LIB_PATH} -lm -lstdc++ -lOpenCL -lrt
-NVCODE = -gencode=arch=compute_20,code=\"compute_20\"
+# LFLAGS_OCL = -L${OCL_LIB_PATH} -lm -lstdc++ -lOpenCL -lrt
+# NVCODE = -gencode=arch=compute_20,code=\"compute_20\"
 #NVCODE = -gencode=arch=compute_52,code=\"compute_52\" -gencode=arch=compute_30,code=\"compute_30\" -gencode=arch=compute_20,code=\"compute_20\"
-#NVCODE = -gencode=arch=compute_30,code=\"compute_30\"
+NVCODE = -gencode=arch=compute_30,code=\"compute_30\"
 
 ifdef HIP_PATH
     HIPCC=$(HIP_PATH)/bin/hipcc
@@ -38,7 +42,8 @@ ifdef CUDA_INSTALL_PATH
         all: mixbench-hip-alt mixbench-hip-ro mixbench-cuda-alt mixbench-cuda-ro mixbench-ocl-alt mixbench-ocl-ro
     else
         # build both cuda and opencl executables
-        all: mixbench-cuda-alt mixbench-cuda-ro mixbench-ocl-alt mixbench-ocl-ro
+        all: mixbench-cuda-alt mixbench-cuda-ro
+        # all: mixbench-cuda-alt mixbench-cuda-ro mixbench-ocl-alt mixbench-ocl-ro
     endif
 else
     ifdef HIP_PLATFORM
